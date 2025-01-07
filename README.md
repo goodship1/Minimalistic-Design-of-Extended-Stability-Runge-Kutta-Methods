@@ -10,12 +10,10 @@ Traditional ESRK methods often involve high storage requirements and computation
 
 1. **Low Storage Requirements**:
    - The scheme uses a novel structure requiring only **2s-7 unique coefficients**, reducing the memory footprint compared to traditional ESRK schemes.
-
-2. **Precomputation of Repeated Stages**:
-   - Repeated coefficients are precomputed and stored efficiently, minimizing redundant calculations.
+.
 
 3. **Generalized Structure**:
-   - The design can be applied to **3rd-order 15-stage**, **4th-order 16-stage**, and potentially other high-order ESRK methods.
+   - The design can be applied to **3rd-order 15 and 21 stage**, **4th-order 16-stage**, and potentially other high-order ESRK methods.
 
 4. **Improved Computational Efficiency**:
    - By combining **compressed representation** and **precomputation**, the scheme achieves faster runtimes and reduced memory usage.
