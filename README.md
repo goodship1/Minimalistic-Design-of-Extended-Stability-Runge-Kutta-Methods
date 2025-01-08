@@ -1,6 +1,6 @@
 # Minimalistic Design of Extended Stability Runge-Kutta (ESRK) Methods
 
-This repository contains research code for a potential new **Extended Stability Runge-Kutta (ESRK)** scheme. The design leverages a novel structure that requires only **2s-7 unique coefficients**, significantly reducing memory and computational requirements while maintaining high accuracy and stability.
+This repository contains research code for a potential new **Extended Stability Runge-Kutta (ESRK)** scheme. The design leverages a novel structure that requires only **2S-7 unique coefficients**, significantly reducing memory and computational requirements while maintaining high accuracy and stability.This structure has been tested when S>=15 where S is the number of stages in the butcher tableau.
 
 ## Overview
 
