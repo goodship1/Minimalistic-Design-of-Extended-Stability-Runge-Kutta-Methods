@@ -1,4 +1,5 @@
 #Third order covnergence on 2D brusselator
+#Third order 15 stage ESRK implemented on the  2D brussealtor 
 import numpy as np
 import time
 import tracemalloc
