@@ -27,7 +27,7 @@ def kahan_sum(values):
     return sum_
 
 ###############################################################################
-# 2) The 1D Brusselator PDE ODE Right-Hand Side
+# 2) The 1D Brusselator PDE ODE Right-Hand Side with 21 stage esrk
 ###############################################################################
 def brusselator_1d(t, y, N, dx, D_u, D_v, a_param, b_param):
     """
