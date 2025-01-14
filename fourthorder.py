@@ -1,5 +1,5 @@
 #@title mybets { form-width: "100px" }
-
+#ipopt code for generating the fourth order 16 stage
 #from pyomo.core.expr import current as EXPR
 import pyomo.core.expr as EXPR
 import pyomo.environ as pyo
