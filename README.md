@@ -9,7 +9,7 @@ Traditional ESRK methods often involve high storage requirements and computation
 ### Key Features
 
 1. **Low Storage Requirements**:
-   - The scheme uses a novel structure requiring only **2S-7 unique coefficients**, reducing the memory footprint compared to traditional ESRK schemes. S is the number of stages this reflects the number of unique a values which are needed 
+   - The scheme uses a novel structure requiring only **2S-7 unique coefficients**, reducing the memory footprint compared to traditional ESRK schemes. S is the number of stages this reflects the number of unique a-values which are needed 
 .
 
 3. **Generalized Structure**:
