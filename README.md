@@ -27,7 +27,7 @@ Traditional ESRK methods often involve high storage requirements and computation
 
 ### 1. **Codebase**
    - Implementation of the **2s-7 ESRK scheme** for testing and validation.
-   - Includes examples for 3rd-order 15-stage and 4th-order 16-stage Butcher tableaus.
+   - Includes examples for 3rd-order 15 and 21-stage and 4th-order 16-stage Butcher tableaus.
    - Ipopt code which is used to generated a search of the butcher tableaus along with the dockerfile used to run them locally.
 
 ### 2. **Order Condition Verification**
@@ -35,13 +35,13 @@ Traditional ESRK methods often involve high storage requirements and computation
 
 ### 3. **Performance Analysis**
    - Scripts for benchmarking against traditional ESRK methods.
-   - Metrics include runtime, memory usage, and convergence behavior.
+   - Metrics include runtime, memory usage, and convergence behaviour.
 
 ### 4. **Stability Analysis**
    - Tools to analyze the stability region of the proposed scheme along with the stability polynomial structure.
 ### 5. **Collect of butcher tableaus**
    -  Also in the repo is a collection of 3rd order 4th order tableaus for researchers to use.
-   -  Also the docker file to run the IPOPT code to generate the schemes available for other researchers to generate there own schemes  
+   -  Also the docker file to run the IPOPT code to generate the schemes available for other researchers to generate their own schemes  
      
 
 ---
