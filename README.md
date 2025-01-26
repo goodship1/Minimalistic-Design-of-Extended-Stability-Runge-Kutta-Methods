@@ -47,6 +47,7 @@ Traditional ESRK methods often involve high storage requirements and computation
 ---
 
 ## Usage
+Download the dockerfule to run the ipopt code with the constraints added in to generate the tableaus for analysis the third order 21 stage takes a while to find a convergence solution and reference butcher tableaus will be provided for the tableaus in the paper which is attached with this code. 
 
 ### Requirements
 - Python 3.8+
