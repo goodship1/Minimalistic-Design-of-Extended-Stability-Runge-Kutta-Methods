@@ -26,7 +26,7 @@ Traditional ESRK methods often involve high storage requirements and computation
 ## Repository Contents
 
 ### 1. **Codebase**
-   - Implementation of the **2s-7 ESRK scheme** for testing and validation.
+   - Implementation of the **2S-7 ESRK scheme** for testing and validation.
    - Includes examples for 3rd-order 15 and 21-stage and 4th-order 16-stage Butcher tableaus.
    - Ipopt code which is used to generated a search of the butcher tableaus along with the dockerfile used to run them locally.
 
