@@ -6,7 +6,7 @@ import tracemalloc
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
-# Configure NumPy to raise exceptions on floating-point errors
+
 np.seterr(over='raise', invalid='raise', divide='raise', under='warn')
 
 ###############################################################################
