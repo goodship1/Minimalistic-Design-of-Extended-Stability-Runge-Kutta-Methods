@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
+#Internal amplication studies of third order 21 stage ESRK 
 a = np.array([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0.0477859117523170, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
