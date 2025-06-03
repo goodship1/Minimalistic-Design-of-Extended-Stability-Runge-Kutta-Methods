@@ -1,0 +1,311 @@
+import numpy as np
+import time
+import tracemalloc
+from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
+
+# 15-stage, 3rd-order ESRK coefficients (a-matrix and b-vector) for your low-storage method:
+a_1 = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0243586417803786, 0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0258303808904268, 0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0667956303329210, 0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0140960387721938, 0,               0,               0,               0,               0,               0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0412105997557866, 0,               0,               0,               0,               0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0149469583607297, 0,               0,               0,               0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.414086419082813, 0,               0,               0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.00395908281378477, 0,               0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.480561088337756, 0,               0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.00661245794721050, 0.319660987317690, 0,               0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.00661245794721050, 0.216746869496930, 0.00668808071535874, 0,               0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.00661245794721050, 0.216746869496930, 0,               0.0374638233561973, 0,               0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.00661245794721050, 0.216746869496930, 0,               0.422645975498266, 0.439499983548480, 0,               0],
+    [0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.0358989324994081, 0.00661245794721050, 0.216746869496930, 0,               0.422645975498266, 0.0327614907498598, 0.367805790222090, 0]
+]
+b_1 = [
+    0.035898932499408134, 0.035898932499408134, 0.035898932499408134,
+    0.035898932499408134, 0.035898932499408134, 0.035898932499408134,
+    0.035898932499408134, 0.035898932499408134, 0.006612457947210495,
+    0.21674686949693006, 0.0,               0.42264597549826616,
+    0.03276149074985981, 0.0330623263939421,   0.0009799086295048407
+]
+
+
+a = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0162559490865921, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0998207004735601, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.00837659391110831, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.816464547912156, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.0643329663939142, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.236165334635088, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.0408176286315510, 0.00122595190532598, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.0408176286315510, 0.00165793539872671, 0.0223576010406567, 0, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.0408176286315510, 0.00165793539872671, 0.00450791958651599, 0.0889134695375643, 0, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.0408176286315510, 0.00165793539872671, 0.00450791958651599, 0.0874545207377521, 0.0368868956618399, 0, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.0408176286315510, 0.00165793539872671, 0.00450791958651599, 0.0874545207377521, 0.243787757096315, 0.0745836439853446, 0, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.0408176286315510, 0.00165793539872671, 0.00450791958651599, 0.0874545207377521, 0.243787757096315, 0.176532421863008, 0.787431349374128, 0, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.0408176286315510, 0.00165793539872671, 0.00450791958651599, 0.0874545207377521, 0.243787757096315, 0.176532421863008, 0.0416960156051088, 0.000818162718803893, 0, 0],
+    [0.0196784177818622, 0.0410628665737309, 0.0196412620004881, 0.0600714358887177, 0.142151154570198, 0.0408176286315510, 0.00165793539872671, 0.00450791958651599, 0.0874545207377521, 0.243787757096315, 0.176532421863008, 0.0416960156051088, 6.92385225011362e-5, 0.213693146719044, 0]
+]
+
+
+b = [
+    0.019678417781862172, 0.04106286657373094, 0.019641262000488085, 0.06007143588871774, 
+    0.14215115457019759, 0.04081762863155103, 0.0016579353987267072, 0.004507919586515985, 
+    0.08745452073775208, 0.24378775709631514, 0.17653242186300802, 0.04169601560510882, 
+    6.923852250113618e-05, 0.09743567581622212, 0.023435749927302442
+]
+
+a_values = np.array(a, dtype=np.float128)
+b_values = np.array(b, dtype=np.float128)
+
+# -----------------------------------------------------------------------------
+# Kahan summation (for improved floating-point accumulation when computing c_i)
+# -----------------------------------------------------------------------------
+def kahan_sum(values):
+    total = np.float128(0.0)
+    c = np.float128(0.0)
+    for x in values:
+        y = x - c
+        t = total + y
+        c = (t - total) - y
+        total = t
+    return total
+
+# -----------------------------------------------------------------------------
+# van der Pol oscillator (mildly stiff, μ=10)
+# -----------------------------------------------------------------------------
+def van_der_pol(t, y):
+    μ = np.float128(10.0)
+    y1, y2 = y
+    dy1 = y2
+    dy2 = μ * (1 - y1**2) * y2 - y1
+    return np.array([dy1, dy2], dtype=np.float128)
+
+# -----------------------------------------------------------------------------
+# 15-stage, third-order RK integrator using only 2 registers + occasional temp storage
+# -----------------------------------------------------------------------------
+def rk15_low_storage_2_registers_optimized(f, t_span, y0, h, a_values, b_values):
+    t0, tf = t_span
+    t = np.float128(t0)
+    y = y0.copy()
+    t_list = [t]
+    y_list = [y.copy()]
+    
+    s = len(b_values)
+    num_steps = int(np.ceil( (tf - t0) / h ))
+    
+    # Precompute the c-vector (stage times) via Kahan sums of each row of a_values:
+    c = np.zeros(s, dtype=np.float128)
+    for i in range(s):
+        c[i] = kahan_sum(a_values[i][:i])
+    
+    # For each k_j, determine the last stage in which it appears (last nonzero in its column)
+    last_usage = [0]*s
+    for j in range(s):
+        for i in reversed(range(s)):
+            if a_values[i][j] != 0:
+                last_usage[j] = i
+                break
+    
+    # Two registers, R1 and R2, to hold some k_j values
+    R1 = np.zeros_like(y, dtype=np.float128)
+    R2 = np.zeros_like(y, dtype=np.float128)
+    reg1_idx = None
+    reg2_idx = None
+    
+    # If both registers are full when a new k_i is computed, stash it in temp_k
+    temp_k = {}
+    
+    for step in range(num_steps):
+        sum_bF = np.zeros_like(y, dtype=np.float128)
+        
+        # Loop over stages i = 0..s-1
+        for i in range(s):
+            # Build the stage solution y_stage = y + h * Σ_{j<i} a[i,j] * k_j
+            y_stage = y.copy()
+            for j in range(i):
+                if j in temp_k:
+                    kj = temp_k[j]
+                elif j == reg1_idx:
+                    kj = R1
+                elif j == reg2_idx:
+                    kj = R2
+                else:
+                    raise RuntimeError(f"Stage {i} needs k_{j}, but it is not stored!")
+                
+                y_stage += h * a_values[i][j] * kj
+            
+            t_stage = t + c[i]*h
+            k_new = f(t_stage, y_stage)
+            
+            # Decide where to put k_new: either overwrite R1 or R2 if their content is no longer needed,
+            # or occupy an empty register, or else stash into temp_k.
+            overwritten = False
+            # Check if R1 can be overwritten
+            if (reg1_idx is not None) and (last_usage[reg1_idx] <= i):
+                if reg1_idx == reg2_idx:
+                    # Both registers reference same k (unlikely), but prefer R1
+                    R1 = k_new.copy()
+                    reg1_idx = i
+                else:
+                    R1 = k_new.copy()
+                    reg1_idx = i
+                overwritten = True
+            
+            # Check if R2 can be overwritten (only if R1 was not overwritten, to keep consistency)
+            if (not overwritten) and (reg2_idx is not None) and (last_usage[reg2_idx] <= i):
+                R2 = k_new.copy()
+                reg2_idx = i
+                overwritten = True
+            
+            # If neither register was free, try to place into an empty one
+            if not overwritten:
+                if reg1_idx is None:
+                    R1 = k_new.copy()
+                    reg1_idx = i
+                    overwritten = True
+                elif reg2_idx is None:
+                    # Ensure we don’t accidentally clobber R1 if reg1_idx == i
+                    R2 = k_new.copy()
+                    reg2_idx = i
+                    overwritten = True
+            
+            # If still not placed, store in temp_k
+            if not overwritten:
+                temp_k[i] = k_new.copy()
+            
+            # Accumulate b[i] * k_new
+            sum_bF += b_values[i] * k_new
+        
+        # Update solution
+        y += h * sum_bF
+        t += h
+        
+        t_list.append(t)
+        y_list.append(y.copy())
+        
+        # Clear temp_k for next step (we know no k_j carried into next step)
+        temp_k.clear()
+    
+    return np.array(t_list, dtype=np.float128), np.array(y_list, dtype=np.float128)
+
+# -----------------------------------------------------------------------------
+# L² error between numerical and reference solutions (over all time points)
+# -----------------------------------------------------------------------------
+def l2_norm_error(y_num, y_ref):
+    diff = y_num - y_ref
+    # Euclidean norm per time point
+    per_step_norm = np.linalg.norm(diff, axis=1)
+    # Then take root‐mean‐square:
+    return np.sqrt(np.mean(per_step_norm**2, dtype=np.float128))
+
+# -----------------------------------------------------------------------------
+# Compute empirical order of convergence from a list of errors + step sizes
+# -----------------------------------------------------------------------------
+def calculate_order_of_convergence(errors, hs):
+    orders = []
+    for i in range(1, len(errors)):
+        if errors[i-1] == 0:
+            orders.append(np.nan)
+        else:
+            rate = np.log(errors[i]/errors[i-1]) / np.log(hs[i]/hs[i-1])
+            orders.append(rate)
+    return orders
+
+# -----------------------------------------------------------------------------
+# Given a coarse solution (t_values, y_values) at steps h, interpolate to reference times
+# -----------------------------------------------------------------------------
+def interpolate_solution(t_values, y_values, t_values_ref):
+    # We do a cubic spline in each component
+    y_interp = []
+    for comp in range(y_values.shape[1]):
+        f = interp1d(t_values, y_values[:, comp], kind='cubic',
+                     fill_value="extrapolate")
+        y_interp.append(f(t_values_ref))
+    return np.vstack(y_interp).T
+
+# -----------------------------------------------------------------------------
+# Main block: run convergence + timing + memory study on van der Pol (mildly stiff μ=10)
+# -----------------------------------------------------------------------------
+if __name__ == "__main__":
+    # Time interval and initial condition for van der Pol
+    t_span = (0.0, 10.0)
+    y0 = np.array([2.0, 0.0], dtype=np.float128)
+    
+    # We will compare several step sizes h, from 0.05 down to 0.001 (50 points)
+    hs = np.linspace(0.05, 0.001, 50)
+    
+    # First, generate a high-precision "reference" solution using h_ref = 1e-5
+    print("Generating reference solution (h_ref = 1e-5) …")
+    t_ref, y_ref = rk15_low_storage_2_registers_optimized(
+        van_der_pol, t_span, y0, np.float128(1e-5), a_values, b_values
+    )
+    print("Reference solution complete.\n")
+    
+    # Prepare lists to collect results
+    errors   = []
+    times    = []
+    memories = []
+    iters    = []
+    
+    # Loop over each h ∈ hs
+    for k, h in enumerate(hs):
+        print(f"Step {k+1}/{len(hs)}: h = {h:.5f}")
+        
+        # Start memory tracking
+        tracemalloc.start()
+        # Start timer
+        t0 = time.time()
+        
+        # Run the integrator
+        t_num, y_num = rk15_low_storage_2_registers_optimized(
+            van_der_pol, t_span, y0, np.float128(h), a_values, b_values
+        )
+        
+        # Stop timer
+        elapsed = time.time() - t0
+        times.append(elapsed)
+        
+        # Record peak memory usage
+        current_mem, peak_mem = tracemalloc.get_traced_memory()
+        memories.append(peak_mem)
+        tracemalloc.stop()
+        
+        # Interpolate numerical solution onto reference time grid
+        y_interp = interpolate_solution(t_num, y_num, t_ref)
+        
+        # Compute L² error
+        err = l2_norm_error(y_interp, y_ref)
+        errors.append(err)
+        
+        # Record number of steps taken
+        iters.append(len(t_num) - 1)
+        
+        print(f"  → Error = {err:.3e}, Steps = {iters[-1]},  Time = {elapsed:.4f}s,  PeakMem = {peak_mem} bytes\n")
+    
+    # Compute empirical orders of convergence
+    orders = calculate_order_of_convergence(errors, hs)
+    
+    # Print summary
+    print("=== Convergence Study Results ===")
+    print("h values:", hs)
+    print("Errors:", errors)
+    print("Empirical orders:", orders)
+    print("Function evaluations per run (≈ iters×15):", [it*15 for it in iters])
+    print("CPU times (s):", times)
+    print("Peak memory (bytes):", memories)
+    
+    # Plot convergence on log-log plot
+    plt.figure(figsize=(8,6))
+    plt.loglog(hs, errors, "o-", label="RK15 (low-storage) Error")
+    # Reference 3rd-order line: ~ C h^3, use first point to anchor
+    C3 = errors[0] / hs[0]**3
+    plt.loglog(hs, C3*hs**3, "k--", label="O(h³) reference")
+    plt.xlabel("Step size Δt")
+    plt.ylabel("L² Error")
+    plt.title("Convergence of 15-stage RK (2 registers) on van der Pol (μ=10) van der houwen structure")
+    plt.legend()
+    plt.grid(which="both", ls=":")
+    plt.show()
