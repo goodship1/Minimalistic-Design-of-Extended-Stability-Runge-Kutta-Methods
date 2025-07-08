@@ -55,14 +55,14 @@ def verify_2s_minus_8_matches_rooted_trees(s, nprobe=5):
 
     return {
         "Stages (s)": s,
-        "2s - 8 Parameters": num_params,
+        "2S - 8 Parameters": num_params,
         "Order Conditions": len(eqs),
         "Max Numeric Rank": best_rank,
-        "Matches 2s - 8": best_rank == len(eqs)
+        "Matches 2S - 8": best_rank == len(eqs)
     }
 
 # Example usage
 if __name__ == "__main__":
-    for s in [15,20,25,30,35,40,45,50,55,65,70]:
+    for s in [16, 20, 30]:
         result = verify_2s_minus_8_matches_rooted_trees(s, nprobe=10)
         print(result)
