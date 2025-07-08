@@ -1,6 +1,6 @@
 # Minimalistic Design of Extended Stability Runge-Kutta (ESRK) Methods.
 
-This repository contains research code for a potential new **Extended Stability Runge-Kutta (ESRK)** scheme. The design leverages a novel structure that requires only **2S-7 unique coefficients**, significantly reducing memory and computational requirements while maintaining high accuracy and stability. This structure has been tested when S>=15 where S is the number of stages in the butcher tableau.
+This repository contains research code for a potential new **Extended Stability Runge-Kutta (ESRK)** scheme. The design leverages a novel structure that requires only **2S-8 unique coefficients**, significantly reducing memory and computational requirements while maintaining high accuracy and stability. This structure has been tested when S>=15 where S is the number of stages in the butcher tableau.
 
 ## Overview
 
@@ -19,7 +19,9 @@ Traditional ESRK methods often involve high storage requirements and computation
    - By combining **compressed representation** and **precomputation**, the scheme achieves faster runtimes and reduced memory usage.
 
 5. **Potential Applications**:
-   - Suitable for solving stiff and mildly stiff ODEs, particularly in resource-constrained environments with critical low-storage methods.
+   - Suitable for solving stiff and mildly stiff ODEs, particularly in resource-constrained environments with critically low-storage methods.
+
+6. Fifth order root trees order conditions checked 2S-6 unique coefficients are able to meet the rooted tree conditions when S>=12, but when extended stability requirements, S has to be greater than 18 
 
 ---
 
