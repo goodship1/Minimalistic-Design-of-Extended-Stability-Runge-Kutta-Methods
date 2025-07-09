@@ -10,7 +10,7 @@ def verify_two_register_order3(S, verbose=False):
     """
     assert S >= 8, "Need at least S = 8 stages"
 
-    n_params = 2 * S - 7
+    n_params = 2 * S - 8
     params   = sp.symbols(f'p0:{n_params}')
 
     # -------- b_i pattern (shared for first 8 stages) ------------------------
