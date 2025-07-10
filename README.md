@@ -40,10 +40,11 @@ Traditional ESRK methods often involve high storage requirements and computation
    - Metrics include runtime, memory usage, and convergence behaviour.
 
 ### 4. **Stability Analysis**
-   - Tools to analyze the stability region of the proposed scheme along with the stability polynomial structure. All the tableaus used in the paper are stability polynominal and caluations and plots are provided in there own seperate notebook. This includes the 3rd order 15 , 21 stage and 4th order 16 stage.
+   - Tools to analyze the stability region of the proposed scheme along with the stability polynomial structure. All the tableaus used in the paper are stability polynomial and calculations and plots are provided in there own seperate notebook. This includes the 3rd order 15 , 21 stage and 4th order 16 stage.
 ### 5. **Collect of butcher tableaus**
    -  Also in the repo is a collection of 3rd order 4th order tableaus for researchers to use.
-   -  Also the docker file to run the IPOPT code to generate the schemes available for other researchers to generate their own schemes  
+   -  Also the docker file to run the IPOPT code to generate the schemes available for other researchers to generate their own schemes.
+   -  For the longer running 21 stage  esrk i have supplied some tableaus but feel free to generate your own all IPOPT code is provided. 
      
 
 ---
