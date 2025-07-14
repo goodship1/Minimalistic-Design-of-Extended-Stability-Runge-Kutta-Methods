@@ -60,6 +60,6 @@ def rooted_tree_analysis_esrk_4th_order(s):
 
 # Test across many stage counts
 if __name__ == "__main__":
-    for stages in range(16, 55):
+    for stages in range(16, 300):
         out = rooted_tree_analysis_esrk_4th_order(stages)
         print(out)
