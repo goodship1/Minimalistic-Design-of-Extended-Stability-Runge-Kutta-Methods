@@ -1,13 +1,4 @@
-"""
-vdH_order3.py
 
-Symbolic & numeric verification that a 2-register Van-der-Houwen (VdH)
-Runge-Kutta tableau with (2S-8) free parameters can satisfy all 3rd-order
-rooted-tree (B-series) order conditions, and that the 4x(2S-8) Jacobian of
-those conditions wrt the free parameters can have full rank 4.
-
-Author: <your name / affiliation>
-"""
 
 import sympy as sp
 import random
